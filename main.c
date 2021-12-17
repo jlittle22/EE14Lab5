@@ -17,6 +17,8 @@
 volatile double angle, frequency = 0;
 volatile double bpm = 60;
 
+// Init functions!
+
 void System_Clock_Init(void){
 	
 	RCC->CR |= RCC_CR_MSION; 
@@ -103,6 +105,9 @@ void TIM4_Init() {
 
 }
 
+
+// Processing Functions
+
 void TIM4_IRQHandler() {
 	  double result;
 	  double step;
@@ -110,7 +115,7 @@ void TIM4_IRQHandler() {
     if ((TIM4->SR & TIM_SR_CC1IF) != 0) {
 		  result = angle * M_PI / 180.0f; //put angle in radians
 			
-			output = (uint32_t)((sin(result) + 1)* 2048.0); // Theoretically if you make a super fast sin talbe this should work 
+			output = (uint32_t)((sin(result) + 1)* 2048.0);
 			
 			while ((DAC->SR & DAC_SR_BWST2) != 0);
 			
@@ -256,15 +261,11 @@ void Play_Note(char note, bool sharp, bool flat, uint16_t octave, double beats) 
 
 
 
-//SONGS (CHAR = NOTES, DOUBLE = FREQ, FLAT = FLAT BOOL, SHARP = SHAPR BOOL)
+// Songs! 
+
 char hot_cross_char[] = { 'E', 'E', 'E','E','E','E','E','G','C','D','E','F','F','F','F','F','E','E','E','E','E','D','D','E','D','G'
 };
 
-
-
-//double hot_cross_double[] = { 329.628, 329.628, 329.628, 329.628, 329.628, 329.628, 329.628, 391.995, 261.626, 293.665, 329.628, 349.228, 349.228, 349.228, 349.228, 349.228, 349.228, 329.628, 329.628, 329.628, 329.628, 261.626, 261.626, 329.628, 261.626, 391.995,
-//};  
-//
 
 double hot_cross_beats[] = { .25,.25,.5,.25,.25,.5,.25,.25,.375,.125,1,.25,.25,.375,.125,.25,.25,.25,.125,.125,.25,.25,.25,.25,.5, .5
 };
@@ -299,26 +300,15 @@ double HP_beats[] ={.25,.375,.125,.25,.5,.25,.5,.5,
 	                  .375,.125,.25,.5,.25,1,.25
 };
 
-//char G4_char[] = { 'R','C','C','D','E','D','C','D','E','D','C','D','E','G','E','R','C','C','D','E','D','E','D','C','D','E','D','C','D','E','G','E'
-//};
-
-
-//double G4_beats[] ={.125,.125,.125,.125,.125,.125,.125,.125,.125,.125,.125,.125,.125,.125,.25,.125,.125,.125,.125,.125,.125,.125,.125,.125,.125,.125,.125,.125,.125,.25
-//};
-
-
-
 char taiwan_notes[] = { 'C', 'C', 'E', 'E', 'G', 'G', 'E', 'D', 'E', 'C', 'A', 'G', 'A', 'E', 'A', 'G', 'F', 'G' };
 char taiwan_sharps[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 };
 double taiwan_beats[] = { 1, 2.5, 1, 2.5, 1, 1.5, 1, 2.5, 1, 2.5, 0.5, 0.5, 2.5, 1, 2.5, 0.5, 0.5, 2 };
 char taiwan_octaves[] = { 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 4, 4, 4, 4, 4, 4, 4, 4 };
 
-
 int main(void){
 		
 	int i;
 	
-	//System Clock Initialization
 	System_Clock_Init();
 	
 	SysTick_Initialize(1000);
@@ -327,74 +317,28 @@ int main(void){
 	
 	TIM4_Init();
 	
-	//LED_Init();
-	//Green_LED_On();
-
-	while(1) {	// first row is when divide by freq is 20000 : 3:18:9
+	while(1) {	
  
-		//frequency = 402.0f; 
-		//Correct_Frequency	(440.0f);
-		
-//		Green_LED_Toggle();
-		//delay(1000);
-		
-	//	Play_Freq(Note_To_Freq('C', 0, 0, 4), 1000);
-	
-//		for (i=0;i<27;i++){
-//			hcc = hot_cross_char[i];
-//			hcd = hot_cross_double[i];
-//			hcs = hot_cross_sharp[i];
-//			hcf = hot_cross_flat[i];
-//			hcb = hot_cross_beats[i];
-//			Play_Freq(hcd,hcb*800);
-//			delay(1);
-//			frequency = 0.1;
-//			delay(1);
-//			
-		//}
+	  // Harry Potter theme needs 60 bpm
     bpm = 60;
   	for (i=0;i<34;i++){
   			Play_Note(HP_char[i],HP_sharp[i],HP_flat[i], HP_octave[i],HP_beats[i]);
   		frequency = 0.1f;
   	}
-////bpm = 50;
-////		for (i=0;i<31;i++){
-////				Play_Note(G4_char[i],0,0, 4,G4_beats[i]);
-////		}
+
+	  // Taiwan's national anthem uses 100 bpm
     bpm = 100;
     for (i = 0; i < 18; i++) {
 		    Play_Note(taiwan_notes[i], taiwan_sharps[i], 0, taiwan_octaves[i], taiwan_beats[i]);
 					frequency = 0.1f;
 		}
+		
+		// Jingle bells used 40 bpm
 		bpm = 40;
 		for (i = 0; i < 27; i++) {
 		    Play_Note(hot_cross_char[i], 0, 0, 4, hot_cross_beats[i]);
 					frequency = 0.1f;
 		}
-
-
-	//	Play_Note('C',0,0, 4, 0.25);
-	//	Play_Note('C',1,0, 4, 0.25);
-	//	Play_Note('D',0,0, 5, 0.25);
-	//	Play_Note('D',1,0, 4, 0.25);
-	//	Play_Note('E',0,0, 4, 0.25);
-	//	Play_Note('F',0,0, 4, 0.25); // A and B are fucked up
-	//	Play_Note('F',1,0, 4, 0.25);
-	//	
-
-		
-		// C:  261.626 --> 402.0f
-		// C#: 277.183 --> 426
-    // D:  293.665 --> 445
-    // D#: 311.127 --> 477
-    // E:  329.628 --> 513
-    // F:  349.228 --> 545
-    // F#: 369.994 --> 572
-    // G:  391.995 --> 600
-    // G#: 415.305 --> 648
-    // A:  440.0   --> 675
-    // A#: 466.164 --> 715
-    // B:  493.883 --> 765
 	}
 }
 
